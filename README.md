@@ -8,7 +8,7 @@ This extension aims to add some usefull shortcuts when using Rust with Godot
 
 - Adds fields automagically with correct Type and name. Struct must be [`init`](https://godot-rust.github.io/docs/gdext/master/godot/register/derive.GodotClass.html#construction)
 
-https://github.com/jgirardet/grudot/raw/refs/heads/master/doc/onready.mp4
+https://github.com/user-attachments/assets/4a9904bf-6ff1-4570-8b82-b015ea439fd4
 
 ## Extension Settings
 
