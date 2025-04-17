@@ -14,11 +14,11 @@
   "contributes": {
     "commands": [
       {
-        "command": "godot4-rust.insert_onready",
+        "command": "godot4-rust.insertOnReady",
         "title": "Godot4-Rust: Insert OnReady field"
       },
       {
-        "command": "godot4-rust.set_godot_project",
+        "command": "godot4-rust.setGodotProject",
         "title": "Godot4-Rust: Set Godot Project"
       }
     ],

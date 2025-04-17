@@ -1,6 +1,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import path from "path";
 import { Heading, RHeading, Tscn } from "./interfaces";
+import { NodeQuickItem } from "./quick_pick_items";
 
 const convert = require("tscn2json");
 
@@ -34,14 +35,15 @@ class Nodes {
     this.nodes = scenes;
   }
 
-  choices = (): string[] => {
-    let res: string[] = [];
-    res.push(`> ${this.nodes[0].name}`);
+  choices = (): NodeQuickItem[] => {
+    let res: NodeQuickItem[] = [];
+    res.push(new NodeQuickItem(this.nodes[0]));
     let conter = 1;
     for (let s of this.nodes.slice(1, this.nodes.length)) {
-      let nb_sub = s.path.split("/").length;
-      res.push(`${conter} ${"-".repeat(nb_sub * 3)}> ${s.path}  (${s.type})`);
-      conter++;
+      res.push(new NodeQuickItem(s));
+      // let nb_sub = s.path.split("/").length;
+      // res.push(`${conter} ${"-".repeat(nb_sub * 3)}> ${s.path}  (${s.type})`);
+      // conter++;
     }
     return res;
   };
@@ -56,15 +58,15 @@ class NodesBuilder {
     this.godot_project = godot_project;
   }
 
-  root_path = (): string => path.dirname(this.godot_project);
-
   parse = async (filepath: string) => {
-    const tscn = await this.parse_tscn(path.join(this.godot_project, filepath));
+    const tscn = await this.parse_tscn(filepath);
     this.parse_converted(tscn);
   };
 
-  parse_tscn = async (path: String): Promise<Tscn> => {
-    let converted: Tscn = await convert({ input: path });
+  parse_tscn = async (filepath: string): Promise<Tscn> => {
+    let converted: Tscn = await convert({
+      input: path.join(this.godot_project, filepath),
+    });
     return converted;
   };
 
@@ -101,10 +103,11 @@ class NodesBuilder {
       throw new Error(`${res_name} not found`);
     }
     var other_tscn = new NodesBuilder(this.godot_project);
-    let other_path = path.join(
-      this.root_path(),
-      path_res.path.replace("res://", "")
-    );
+    // let other_path = path.join(
+    //   this.godot_project,
+    //   path_res.path.replace("res://", "")
+    // );
+    let other_path = path_res.path.replace("res://", "");
     await other_tscn.parse(other_path);
     return other_tscn.nodes[0].type!;
   };
