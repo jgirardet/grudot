@@ -1,47 +1,55 @@
 import { glob } from "glob";
 import path from "path";
 import * as vscode from "vscode";
-import { SceneBuilder } from "./SceneBuilder";
+import { NodesBuilder } from "./NodesBuilder";
 import { onready_snippet } from "./coder";
+import { get_godot_path } from "./utils";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "grudot" is now active!');
+  let channel = vscode.window.createOutputChannel("godot4-rust");
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  const disposable = vscode.commands.registerCommand(
-    "grudot.helloWorld",
+  const command_set_project = vscode.commands.registerCommand(
+    "godot4-rust.set_godot_project",
     async () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      const options: vscode.OpenDialogOptions = {
-        filters: { "Fichiers Godot": ["godot"] },
-        openLabel: "Ouvrir le fichier projet .godot",
-        canSelectFiles: false,
-        canSelectFolders: true,
-        canSelectMany: false,
-      };
-      console.log("mais alors");
-      // const f = await vscode.window.showOpenDialog(options).then((u) => u);
+      const godotfilepath = await vscode.window.showOpenDialog({
+        filters: { "Godot Project File": ["godot"] },
+        openLabel: "Select .godot project file",
+        canSelectFiles: true,
+      });
+      if (godotfilepath === undefined) {
+        channel.appendLine("Godot4-Rust: Non project File selected");
+        return;
+      }
+      vscode.workspace
+        .getConfiguration("godot4-rust")
+        .update("godotProjectFilePath", godotfilepath[0].fsPath);
+    }
+  );
 
-      // console.log("efefz");
-      // const rep = f![0];
-      // console.log(rep);
-      // const r = "/home/jim/dev/godot/Sokoban/";
-      const r = "/home/jim/dev/godot/Sokoban/Scenes/Main/main.tscn";
-      // const files = await glob("**/*.tscn", { cwd: r });
-      // console.log(files);
-      // const selected = await vscode.window.showQuickPick(files).then((x) => x);
-      // console.log(selected);
-      const godot_p = "/home/jim/dev/godot/Sokoban/project.godot";
-      var s = new SceneBuilder(godot_p);
-      await s.parse(r);
-      const res = await s.get_scene_tree();
+  const command_onready = vscode.commands.registerCommand(
+    "godot4-rust.insert_onready",
+    async () => {
+      // Get godot path
+      const godot_project_path = get_godot_path();
+      if (godot_project_path === undefined) {
+        channel.appendLine("No godot project set");
+        return;
+      }
+      channel.appendLine(`Godot Project path: ${godot_project_path}`);
+
+      // find and select .tscn files
+      const tscn_files = await glob("**/*.tscn", { cwd: godot_project_path });
+      const selected = await vscode.window.showQuickPick(tscn_files);
+      if (selected === undefined) {
+        channel.appendLine("No file selected, aborting");
+        return;
+      }
+      channel.appendLine(`${selected} selected`);
+
+      // build Scenes
+      var s = new NodesBuilder(godot_project_path);
+      await s.parse(selected);
+      const res = await s.get_node_tree();
       console.log(res);
 
       const onready = await vscode.window.showQuickPick(res.choices());
@@ -50,32 +58,27 @@ export function activate(context: vscode.ExtensionContext) {
       let a = "1";
       let b = Number.parseInt(a);
 
-      const scene = res.scenes[Number.parseInt(onready!.split(" ")[0])];
+      const scene = res.nodes[Number.parseInt(onready!.split(" ")[0])];
 
       let pos = vscode.window.activeTextEditor!.selection.active;
       let onreadsnip = onready_snippet(scene);
 
-      const write = async (pos: vscode.Position, text: string) => {
-        await vscode.window.activeTextEditor?.edit((editBuilder) => {
-          editBuilder.insert(pos, text);
-        });
-      };
       if (
-        vscode.window.activeTextEditor?.document.getText(
-          new vscode.Range(
-            new vscode.Position(pos.line, 0),
-            new vscode.Position(pos.line, 1000)
-          )
-        )
+        !vscode.window.activeTextEditor?.document.lineAt(pos)
+          .isEmptyOrWhitespace
       ) {
-        await write();
+        await vscode.commands.executeCommand("editor.action.insertLineAfter");
       }
 
-      await write(pos, onreadsnip[0]);
-      await write(
-        new vscode.Position(pos!.line + 1, pos!.character),
-        " ".repeat(pos.character) + onreadsnip[1]
+      vscode.window.activeTextEditor?.insertSnippet(
+        new vscode.SnippetString(onreadsnip.join("\n"))
       );
+
+      // await write(pos, onreadsnip[0]);
+      // await write(
+      //   new vscode.Position(pos!.line + 1, pos!.character),
+      //   " ".repeat(pos.character) + onreadsnip[1]
+      // );
 
       // editBuilder.insert(pos!, onreadsnip[0]);
       // editBuilder.insert(
@@ -91,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // console.log("aa", await get_scene_tree(r));
 
-  context.subscriptions.push(disposable);
+  context.subscriptions.push(command_onready);
 }
 
 // This method is called when your extension is deactivated

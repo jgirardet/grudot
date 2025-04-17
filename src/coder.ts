@@ -1,10 +1,10 @@
-import { objectToSnake, toSnake } from "ts-case-convert";
-import { Scene } from "./SceneBuilder";
+import { toSnake } from "ts-case-convert";
+import { Node } from "./NodesBuilder";
 export { onready_snippet };
 
-const onready_snippet = (scene: Scene): string[] => {
+const onready_snippet = (node: Node): string[] => {
   return [
-    `#[init(node = "${scene.path}")]\n`,
-    `${toSnake(scene.name)}: OnReady<Gd<${scene.type}>>,`,
+    `#[init(node = "${node.path}")]`,
+    `${toSnake(node.name)}: OnReady<Gd<${node.type}>>,$0`,
   ];
 };

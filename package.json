@@ -1,6 +1,6 @@
 {
-  "name": "grudot",
-  "displayName": "Grudot",
+  "name": "godot4-rust",
+  "displayName": "Godot4 Rust",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -14,10 +14,24 @@
   "contributes": {
     "commands": [
       {
-        "command": "grudot.helloWorld",
-        "title": "Hello World"
+        "command": "godot4-rust.insert_onready",
+        "title": "Godot4-Rust: Insert OnReady field"
+      },
+      {
+        "command": "godot4-rust.set_godot_project",
+        "title": "Godot4-Rust: Set Godot Project"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Godot4 Rust",
+      "properties": {
+        "godot4-rust.godotProjectFilePath": {
+          "description": "The path to .godot project file",
+          "type": "string",
+          "default": null
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

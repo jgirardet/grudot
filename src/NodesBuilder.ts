@@ -4,9 +4,9 @@ import { Heading, RHeading, Tscn } from "./interfaces";
 
 const convert = require("tscn2json");
 
-export { Scene, SceneBuilder };
+export { Node, NodesBuilder };
 
-class Scene {
+class Node {
   name: string;
   path: string;
   type: string;
@@ -19,26 +19,26 @@ class Scene {
     this.type = type;
   }
 
-  static from_heading(h: Heading): Scene {
+  static from_heading(h: Heading): Node {
     if (h.type === undefined) {
       throw new Error(`${h}: type must not be undefined`);
     }
-    return new Scene(h.name, h.parent, h.type!);
+    return new Node(h.name, h.parent, h.type!);
   }
 }
 
-class Scenes {
-  scenes: Scene[];
+class Nodes {
+  nodes: Node[];
 
-  constructor(scenes: Scene[]) {
-    this.scenes = scenes;
+  constructor(scenes: Node[]) {
+    this.nodes = scenes;
   }
 
   choices = (): string[] => {
     let res: string[] = [];
-    res.push(`> ${this.scenes[0].name}`);
+    res.push(`> ${this.nodes[0].name}`);
     let conter = 1;
-    for (let s of this.scenes.slice(1, this.scenes.length)) {
+    for (let s of this.nodes.slice(1, this.nodes.length)) {
       let nb_sub = s.path.split("/").length;
       res.push(`${conter} ${"-".repeat(nb_sub * 3)}> ${s.path}  (${s.type})`);
       conter++;
@@ -47,7 +47,7 @@ class Scenes {
   };
 }
 
-class SceneBuilder {
+class NodesBuilder {
   godot_project: string;
   nodes: Heading[] = [];
   resources: RHeading[] = [];
@@ -59,7 +59,7 @@ class SceneBuilder {
   root_path = (): string => path.dirname(this.godot_project);
 
   parse = async (filepath: string) => {
-    const tscn = await this.parse_tscn(filepath);
+    const tscn = await this.parse_tscn(path.join(this.godot_project, filepath));
     this.parse_converted(tscn);
   };
 
@@ -78,17 +78,17 @@ class SceneBuilder {
       }
     }
   };
-  get_scene_tree = async (): Promise<Scenes> => {
+  get_node_tree = async (): Promise<Nodes> => {
     const res_tree = [];
     for (const n of this.nodes) {
       if (n.type === undefined) {
         const other_type = await this.parse_instance(n, this.resources);
-        res_tree.push(new Scene(n.name, n.parent, other_type));
+        res_tree.push(new Node(n.name, n.parent, other_type));
       } else {
-        res_tree.push(Scene.from_heading(n));
+        res_tree.push(Node.from_heading(n));
       }
     }
-    return new Scenes(res_tree);
+    return new Nodes(res_tree);
   };
 
   parse_instance = async (h: Heading, r: RHeading[]): Promise<string> => {
@@ -100,7 +100,7 @@ class SceneBuilder {
     if (path_res === undefined) {
       throw new Error(`${res_name} not found`);
     }
-    var other_tscn = new SceneBuilder(this.godot_project);
+    var other_tscn = new NodesBuilder(this.godot_project);
     let other_path = path.join(
       this.root_path(),
       path_res.path.replace("res://", "")
