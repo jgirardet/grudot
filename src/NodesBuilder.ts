@@ -13,10 +13,10 @@ class Node {
   type: string;
 
   constructor(name: string, parent: string, type: string) {
-    const path =
+    const f_path =
       parent === undefined || parent === "." ? name : parent + "/" + name;
     this.name = name;
-    this.path = path;
+    this.path = f_path;
     this.type = type;
   }
 
@@ -38,12 +38,8 @@ class Nodes {
   choices = (): NodeQuickItem[] => {
     let res: NodeQuickItem[] = [];
     res.push(new NodeQuickItem(this.nodes[0]));
-    let conter = 1;
     for (let s of this.nodes.slice(1, this.nodes.length)) {
       res.push(new NodeQuickItem(s));
-      // let nb_sub = s.path.split("/").length;
-      // res.push(`${conter} ${"-".repeat(nb_sub * 3)}> ${s.path}  (${s.type})`);
-      // conter++;
     }
     return res;
   };
