@@ -2,30 +2,20 @@ import { glob } from "glob";
 import * as vscode from "vscode";
 import { NodesBuilder } from "../NodesBuilder";
 import { onready_snippet } from "../snippets";
-import { get_godot_path } from "../utils";
-import { OutputChannel } from "vscode";
+import { get_godot_path, select_tscn } from "../utils";
+import { logger } from "../log";
 
 export { insertOnready };
 
-const insertOnready = async (channel: OutputChannel) => {
-  // Get godot path
+const insertOnready = async () => {
+  // select a .tscn file in project
   const godot_project_path = get_godot_path();
-  if (godot_project_path === undefined) {
-    channel.appendLine("No godot project set");
-    return;
-  }
-  channel.appendLine(`Godot Project path: ${godot_project_path}`);
-
-  // find and select .tscn files
-  const tscn_files = await glob("**/*.tscn", { cwd: godot_project_path });
-  const selected = await vscode.window.showQuickPick(tscn_files);
+  const selected = await select_tscn(godot_project_path);
   if (selected === undefined) {
-    channel.appendLine("No file selected, aborting");
     return;
   }
-  channel.appendLine(`${selected} selected`);
 
-  // build Scenes
+  // build nodes
   var s = new NodesBuilder(godot_project_path);
   await s.parse(selected);
   const res = await s.get_node_tree();
@@ -35,7 +25,7 @@ const insertOnready = async (channel: OutputChannel) => {
   if (pick === undefined) {
     return;
   }
-
+  logger.info(`Node selected: \"${pick.node.path}\"`);
   let onreadsnip = onready_snippet(pick.node);
 
   if (
