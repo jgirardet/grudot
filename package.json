@@ -20,6 +20,10 @@
       {
         "command": "godot4-rust.setGodotProject",
         "title": "Godot4-Rust: Set Godot Project"
+      },
+      {
+        "command": "godot4-rust.newGodotClass",
+        "title": "Godot4-Rust: Create a new GodotClass from Godot Scene"
       }
     ],
     "configuration": {
@@ -37,18 +41,13 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
+    "lint": "eslint src"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.99.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
     "eslint": "^9.23.0",
     "typescript": "^5.8.2"
   },
