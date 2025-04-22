@@ -14,7 +14,7 @@ export {
 const onready_snippet = (node: Node): string[] => {
   return [
     `#[init(node = "${node.path}")]`,
-    `${toSnake(node.name)}: OnReady<Gd<${node.type}>>,$0`,
+    `${toSnake(node.name)}: OnReady<Gd<${node.type}>>,`,
   ];
 };
 

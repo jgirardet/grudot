@@ -12,13 +12,26 @@ import {
 import { logger } from "../log";
 import { Node, Nodes, NodesBuilder } from "../tscn/NodesBuilder";
 import { GODOT_CLASSES } from "../godotClasses";
-import { getDotGodotPath, selectTscn } from "../utils";
+import {
+  applyCodeActionNamed,
+  getDotGodotPath,
+  getRustSrc,
+  selectTscn,
+} from "../utils";
 import path from "path";
 import { toSnake } from "ts-case-convert";
+import { writeFile, writeFileSync } from "fs";
 
 export { newGodotClass };
 
 const newGodotClass = async () => {
+  let persistFile = await vscode.window.showQuickPick(["Yes", "No"], {
+    title: "Create new a new Rust module ?",
+  });
+  if (persistFile === undefined) {
+    return;
+  }
+
   const godotProjectPath = getDotGodotPath();
   const selectedTscn = await selectTscn(godotProjectPath);
   if (selectedTscn === undefined) {
@@ -44,12 +57,28 @@ const newGodotClass = async () => {
   }
 
   const snippet = build_snippet(nodes.nodes[0], pickedMethod, pickedOnready);
-  const a = await vscode.window.activeTextEditor?.insertSnippet(
-    new vscode.SnippetString(snippet)
+
+  let editor: vscode.TextEditor | undefined;
+  if (persistFile === "Yes") {
+    let newFile = await persist(selectedTscn, snippet);
+    if (newFile === undefined) {
+      return;
+    }
+    editor = await vscode.window.showTextDocument(newFile);
+  } else {
+    editor = vscode.window.activeTextEditor;
+    if (editor === undefined) {
+      return;
+    }
+    await editor.insertSnippet(new vscode.SnippetString(snippet));
+  }
+
+  await insertRustMod(
+    editor,
+    path.basename(editor.document.fileName).replace(".rs", "")
   );
   await vscode.commands.executeCommand("editor.action.formatDocument");
-  // doesnt work if run once
-  await vscode.commands.executeCommand("editor.action.formatDocument");
+  vscode.window.showTextDocument(editor.document);
 };
 
 const prepicked = ["ready", "process"];
@@ -116,12 +145,34 @@ const build_snippet = (
     .join("\n");
 };
 
-const persist = async (selectedTscn: string) => {
-  let filename = await vscode.window.showSaveDialog({
-    saveLabel: path.basename(selectedTscn),
-  });
-  if (filename === undefined) {
+const persist = async (
+  selectedTscn: string,
+  content: string
+): Promise<vscode.Uri | undefined> => {
+  let src = await getRustSrc();
+  if (src === undefined) {
     return;
   }
-  let newFileName = toSnake(filename.fsPath);
+  let newFileName = toSnake(
+    path.basename(selectedTscn).replace(".tscn", ".rs")
+  );
+  let fileUri = await vscode.window.showSaveDialog({
+    defaultUri: vscode.Uri.parse(path.join(src, newFileName)),
+  });
+  if (fileUri === undefined) {
+    return;
+  }
+
+  let encoder = new TextEncoder();
+  let encodedContent = encoder.encode(content);
+
+  await vscode.workspace.fs.writeFile(fileUri, encodedContent);
+  logger.info(`New rust module created: ${fileUri}`);
+  return fileUri;
+};
+
+const insertRustMod = async (editor: vscode.TextEditor, filename: string) => {
+  logger.info(`Trying to update crate with mod ${filename}`);
+  await applyCodeActionNamed(editor, `Insert \`mod ${filename};\``);
+  logger.info("Insert mod complete");
 };

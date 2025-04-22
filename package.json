@@ -52,6 +52,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "fs": "^0.0.1-security",
     "glob": "^11.0.1",
     "string-ts": "^2.2.1",
     "ts-case-convert": "^2.1.0",
