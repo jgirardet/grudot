@@ -47,7 +47,10 @@
     "watch": "tsc -watch -p ./",
     "lint": "eslint src",
     "test": "vscode-test",
-    "test2": "tsc && node ./out/test/runTest.js"
+    "test2": "tsc && node ./out/test/runTest.js",
+    "ui-test": "node_modules/vscode-extension-tester/out/cli.js setup-and-run ./out/ui-test/*.test.*js",
+    "ui-test3": "extest setup-and-run './out/ui-test/*.test.mjs' --code_version max --code_settings settings.json --extensions_dir .test-extensions",
+    "ui-test4": "extest run-tests './out/test/ui-test/*.test.mjs' --code_version max --code_settings settings.json --extensions_dir .test-extensions"
   },
   "devDependencies": {
     "@types/chai": "^5.2.1",
