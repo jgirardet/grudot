@@ -1,6 +1,7 @@
 {
   "name": "godot4-rust",
   "displayName": "Godot4 Rust",
+  "publisher": "aaaaa",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -13,8 +14,11 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
-  "main": "./out/extension.js",
+  "activationEvents": [
+    "workspaceContains:Cargo.toml",
+    "workspaceContains:*/Cargo.toml"
+  ],
+  "main": "out/extension.js",
   "contributes": {
     "commands": [
       {
@@ -48,12 +52,13 @@
     "lint": "eslint src",
     "clearTmp": "node ./out/test/testutils.js",
     "ui-test": "tsc && extest run-tests './out/test/ui-test/*.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp",
-    "ui-setup": "extest setup-and-run './out/test/ui-test/*.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp"
+    "ui-setup": "extest setup-and-run './out/test/ui-test/*.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp",
+    "ui-test2": "tsc && extest run-tests './out/test/ui-test/*pet.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp"
   },
   "devDependencies": {
     "@types/chai": "^5.2.1",
     "@types/mocha": "^10.0.10",
-    "@types/node": "20.x",
+    "@types/node": "^22.15.0",
     "@types/vscode": "^1.99.0",
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
@@ -62,12 +67,12 @@
     "@vscode/test-electron": "^2.5.2",
     "chai": "^5.2.0",
     "eslint": "^9.23.0",
-    "mocha": "^11.1.0",
+    "mocha": "^11.2.2",
     "typescript": "^5.8.2",
     "vscode-extension-tester": "^8.14.1"
   },
   "dependencies": {
-    "fs": "^0.0.1-security",
+    "fs": "^0.0.2",
     "glob": "^11.0.1",
     "string-ts": "^2.2.1",
     "ts-case-convert": "^2.1.0",

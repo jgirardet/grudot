@@ -1,6 +1,0 @@
-{
-    "rust-analyzer.check.command": "build",
-    "rust-analyzer.checkOnSave": true,
-    "godot4-rust.environment.godotProjectFilePath": "fzefzef",
-    "godot4-rust.godotProjectFilePath": "/home/jim/dev/godot/Sokoban/project.godot"
-}

@@ -1,3 +1,5 @@
+mod bla;
+
 use godot::prelude::*;
 
 struct MyExtension;

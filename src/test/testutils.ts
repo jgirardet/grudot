@@ -12,10 +12,11 @@ export const cloneDirToTemp = (dirpath: string): string => {
 };
 
 export const addGodotProjectPathSetting = (projectPath: string) => {
+  fs.mkdirSync(path.resolve(projectPath, ".vscode"))
   fs.writeFileSync(
     path.resolve(projectPath, ".vscode/settings.json"),
     `${NAME}.${GODOT_PROJECT_FILEPATH_KEY}: \"${path.resolve(
-      "../../assets/GodotProject/project.godot"
+      "assets/GodotProject/project.godot"
     )}\"`
   );
 };
