@@ -2,6 +2,7 @@ import path from "path";
 import { GODOT_PROJECT_FILEPATH_KEY, GodotSettings, NAME } from "../constantes";
 import * as fs from "fs";
 import * as os from "os";
+import { glob } from "glob";
 
 export const cloneDirToTemp = (dirpath: string): string => {
   let tmp = fs.mkdtempSync(path.join(os.tmpdir(), "grudot"));
@@ -30,3 +31,11 @@ export const getSettings = (filepath: string): GodotSettings | undefined => {
   }
   return undefined;
 };
+
+const clearTmp = async () => {
+  for (let d of await glob(`${os.tmpdir()}/grudot*`)) {
+    fs.rmSync(d, { recursive: true, force: true });
+  }
+};
+
+clearTmp();
