@@ -4,7 +4,15 @@ import * as fs from "fs";
 import * as os from "os";
 import { glob } from "glob";
 import { fileURLToPath, pathToFileURL } from "url";
-import { BottomBarPanel, WebDriver } from "vscode-extension-tester";
+import {
+  BottomBarPanel,
+  OutputView,
+  until,
+  VSBrowser,
+  WebDriver,
+  WebElementCondition,
+  Workbench,
+} from "vscode-extension-tester";
 
 export const cloneDirToTemp = (dirpath: string): string => {
   let tmp = fs.mkdtempSync(path.join(os.tmpdir(), "grudot"));
@@ -40,14 +48,45 @@ export const getSettings = (filepath: string): GodotSettings | undefined => {
   return undefined;
 };
 
-export const showOutPanel = async (driver: WebDriver) => {
+export const showOutPanel = async (driver: WebDriver): Promise<OutputView> => {
   // await wait(1000);
+  // driver.wait("a" === "a");
 
   const bottomBar = new BottomBarPanel();
-  await driver.sleep(1000);
   await bottomBar.toggle(true);
+  console.log("TOGGLE");
   const outputView = await bottomBar.openOutputView();
+  console.log("TOGGLE");
+  // driver.wait)
+  while (true) {
+    const names = await outputView.getChannelNames();
+    if ("Godot4 Rust" in names) {
+      await outputView.selectChannel("Godot4 Rust");
+      return outputView;
+    } else {
+      await driver.sleep(100);
+    }
+  }
+};
+
+export const initTest = async (): Promise<
+  [string, VSBrowser, WebDriver, Workbench, BottomBarPanel, OutputView]
+> => {
+  let rootPath = cloneDirToTemp("assets/noConfigProject");
+  addGodotProjectPathSetting(rootPath);
+  let browser = VSBrowser.instance;
+  browser.openResources(rootPath);
+  let driver = browser.driver;
+  await browser.waitForWorkbench();
+  let wb = new Workbench();
+  let bottomBar = new BottomBarPanel();
+  await browser.waitForWorkbench(500);
+  await bottomBar.toggle(true);
+  let outputView = await bottomBar.openOutputView();
+  await browser.waitForWorkbench(5000);
   await outputView.selectChannel("Godot4 Rust");
+  await browser.waitForWorkbench(500);
+  return [rootPath, browser, driver, wb, bottomBar, outputView];
 };
 
 export const wait = (ms: number) =>
