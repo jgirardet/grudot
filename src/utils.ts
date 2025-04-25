@@ -1,4 +1,3 @@
-import { ConfigurationScope } from "vscode";
 import * as vscode from "vscode";
 import { GODOT_PROJECT_FILEPATH_KEY, NAME } from "./constantes";
 import path from "path";

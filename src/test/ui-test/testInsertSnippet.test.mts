@@ -3,7 +3,10 @@ import path from "path";
 import * as fs from "fs";
 import {
   BottomBarPanel,
+  Editor,
+  EditorView,
   InputBox,
+  TextEditor,
   VSBrowser,
   WebDriver,
   Workbench,
@@ -12,6 +15,7 @@ import {
   addGodotProjectPathSetting,
   cloneDirToTemp,
   getSettings,
+  showOutPanel,
 } from "../testutils.js";
 
 describe("InsertSnippet Command", () => {
@@ -29,31 +33,26 @@ describe("InsertSnippet Command", () => {
     driver = browser.driver;
     await browser.waitForWorkbench();
     wb = new Workbench();
+    await showOutPanel(driver);
   });
 
   it("tests one snippet is added to current file", async () => {
-    // await wb.executeCommand("workbench.action.files.newUntitledFile");
-    // inp = await InputBox.create();
-    // await inp.confirm();
-
-    const bottomBar = new BottomBarPanel();
-    await bottomBar.toggle(true);
-    const outputView = await bottomBar.openOutputView();
-    await outputView.selectChannel("Godot4 Rust");
+    await wb.executeCommand("workbench.action.files.newUntitledFile");
     await wb.executeCommand("godot4-rust.insertOnReady");
+    inp = await InputBox.create();
+    await inp.selectQuickPick(0);
+    await inp.selectQuickPick(4);
 
-    // await wb.openCommandPrompt();
-    // await inp.setText("Ouput:");
-    // await driver.sleep(2000);
-    // await inp.confirm();
-    // await inp.setText("Godot4");
-    // await driver.sleep(2000);
-    // await inp.confirm();
+    let editor = new TextEditor();
+    let ligne1 = await editor.getTextAtLine(1);
+    let ligne2 = await editor.getTextAtLine(2);
 
-    // await inp.confirm();
-    // await inp.selectQuickPick(0);
-    // await inp.selectQuickPick(2);
-    await driver.sleep(5000);
-    throw new Error("irne");
+    assert.equal(ligne1.trim(), '#[init(node = "MC/VB/Label")]');
+    assert.equal(ligne2.trim(), "label: OnReady<Gd<Label>>,");
+    await wb.executeCommand("godot4-rust.insertOnReady");
+    inp = await InputBox.create();
+    await inp.selectQuickPick(0);
+    await inp.selectQuickPick(4);
+    await driver.sleep(2000);
   });
 });
