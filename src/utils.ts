@@ -58,10 +58,18 @@ const selectTscn = async (
   return selected;
 };
 
-const getRustDir = async (): Promise<string> => {
+// find Cargo.toml file => undefined if != 1
+const getCargoToml = async (): Promise<string | undefined> => {
   let cargo = await vscode.workspace.findFiles("Cargo.toml");
   if (cargo.length === 1) {
-    return path.resolve(path.dirname(cargo[0].fsPath));
+    return path.resolve(cargo[0].fsPath);
+  }
+};
+
+const getRustDir = async (): Promise<string> => {
+  let cargo = await getCargoToml();
+  if (cargo !== undefined) {
+    return path.resolve(path.dirname(cargo));
   } else {
     let folders = vscode.workspace.workspaceFolders;
     if (folders !== undefined && folders.length > 0) {
