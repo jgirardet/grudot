@@ -2,7 +2,12 @@
 
 This extension aims to add some usefull shortcuts when using Rust with Godot
 
+
 ## Features
+
+#### First you need to configure the linked Godot Porject
+
+Use dedicated command to set it (Ctrl+Maj+P => Godot4-Rust: set Godot Project)
 
 #### Add `OnReady` as simple as in Godot
 
@@ -20,10 +25,6 @@ https://github.com/user-attachments/assets/4a9904bf-6ff1-4570-8b82-b015ea439fd4
 https://github.com/user-attachments/assets/af8f9d93-9528-4980-8b57-63ca8d41cbf7
 
 ## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
 
 This extension contributes the following settings:
 
