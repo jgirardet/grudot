@@ -11,6 +11,7 @@ import {
   WebDriver,
   Workbench,
 } from "vscode-extension-tester";
+import { existsSync } from "fs";
 
 export const cloneDirToTemp = (dirpath: string): string => {
   let tmp = fs.mkdtempSync(path.join(os.tmpdir(), "grudot"));
@@ -18,11 +19,24 @@ export const cloneDirToTemp = (dirpath: string): string => {
   return tmp;
 };
 
-export const addGodotProjectPathSetting = (projectPath: string) => {
+export const cloneGrudotDirTemp = (dirpath?: string): string => {
+  dirpath = dirpath ?? "assets/GodotProject";
+  let tmp = fs.mkdtempSync(path.join(os.tmpdir(), "grudotproject"));
+  fs.cpSync(dirpath, tmp, { recursive: true });
+  return tmp;
+};
+
+export const addGodotProjectPathSetting = (
+  projectPath: string,
+  godotProjectDir?: string
+) => {
   let dotvscode = path.resolve(projectPath, ".vscode");
-  let godotProject = path.resolve("assets/GodotProject/project.godot");
-  fs.mkdirSync(dotvscode);
-  console.log(`Using: ${dotvscode} existing ${fs.existsSync(dotvscode)}`);
+  godotProjectDir = godotProjectDir ?? path.resolve("assets/GodotProject");
+  let godotProject = path.join(godotProjectDir, "project.godot");
+  if (!fs.existsSync(dotvscode)) {
+    fs.mkdirSync(dotvscode);
+  }
+  console.log(`Using: ${dotvscode}`);
   let setting = {
     "godot4-rust.godotProjectFilePath": godotProject,
   };
@@ -88,6 +102,20 @@ export const multiSelect = async (
       await b.click();
     }
   }
+};
+export const fileExistsAsync = async (fp: string, driver: WebDriver) => {
+  let counter = 0;
+  await driver.wait(async () => {
+    if (existsSync(fp)) {
+      return true;
+    }
+    if (counter === 10) {
+      return;
+    }
+    await driver.sleep(100);
+    counter += 1;
+  });
+  return true;
 };
 
 const clearTmp = async () => {
