@@ -17,7 +17,7 @@ https://github.com/user-attachments/assets/4a9904bf-6ff1-4570-8b82-b015ea439fd4
 - Pick `Godot Methods` and `OnReady` you want to add
 - here you are !!!
 
-https://github.com/user-attachments/assets/4a9904bf-6ff1-4570-8b82-b015ea439fd4
+https://github.com/user-attachments/assets/af8f9d93-9528-4980-8b57-63ca8d41cbf7
 
 ## Extension Settings
 
