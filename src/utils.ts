@@ -3,18 +3,16 @@ import { GODOT_PROJECT_FILEPATH_KEY, NAME } from "./constantes";
 import path from "path";
 import { glob } from "glob";
 import { logger } from "./log";
-import { existsSync } from "fs";
 
 export {
-  getDotGodotPath,
+  getGodotProjectPath,
   getProjectConfig,
   getConfigValue,
   selectTscn,
-  getRustSrc,
   applyCodeActionNamed,
 };
 
-const getDotGodotPath = (): string => {
+const getGodotProjectPath = (): string => {
   const godotfp = getConfigValue(GODOT_PROJECT_FILEPATH_KEY);
   if (godotfp === undefined || godotfp.length === 0) {
     vscode.window.showErrorMessage(
@@ -55,23 +53,6 @@ const selectTscn = async (
   }
   logger.info(`${selected} selected`);
   return selected;
-};
-
-/// Try to return rust/src/ folder and fallback workspace
-const getRustSrc = async (): Promise<string | undefined> => {
-  let cargo = await vscode.workspace.findFiles("Cargo.toml");
-  if (cargo.length === 1) {
-    let base = path.dirname(cargo[0].fsPath);
-    if (existsSync(path.join(base, "src/"))) {
-      let joined = path.resolve(path.join(base, "src/"));
-      logger.info(`Saving new module to : ${joined}`);
-      return joined;
-    } else {
-      logger.info(`Saving new module to : ${path.resolve(base)}`);
-      return base;
-    }
-  }
-  return vscode.workspace.workspaceFolders?.at(0)?.uri.path;
 };
 
 /// Apply the code titled at current cursor position
