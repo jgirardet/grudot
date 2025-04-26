@@ -63,8 +63,11 @@ const getRustSrc = async (): Promise<string | undefined> => {
   if (cargo.length === 1) {
     let base = path.dirname(cargo[0].fsPath);
     if (existsSync(path.join(base, "src/"))) {
-      return path.join(base, "src/");
+      let joined = path.resolve(path.join(base, "src/"));
+      logger.info(`Saving new module to : ${joined}`);
+      return joined;
     } else {
+      logger.info(`Saving new module to : ${path.resolve(base)}`);
       return base;
     }
   }

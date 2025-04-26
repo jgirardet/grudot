@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import path from "path";
 import * as fs from "fs";
+import * as os from "os";
 import {
   BottomBarPanel,
   InputBox,
@@ -12,6 +13,10 @@ import {
 } from "vscode-extension-tester";
 import { initTest, multiSelect } from "../testutils.js";
 
+let LEVEL_SCENE_PATH = "Scenes/Main/LevelButton/level_button.tscn";
+if (os.platform() === "win32") {
+  LEVEL_SCENE_PATH = LEVEL_SCENE_PATH.replaceAll("/", "\\");
+}
 describe("addNewGodot class Command", () => {
   let browser: VSBrowser;
   let driver: WebDriver;
@@ -30,7 +35,7 @@ describe("addNewGodot class Command", () => {
     await wb.executeCommand("godot4-rust.newGodotClass");
     inp = await InputBox.create();
     await inp.selectQuickPick("No");
-    await inp.selectQuickPick("Scenes/Main/LevelButton/level_button.tscn");
+    await inp.selectQuickPick(LEVEL_SCENE_PATH);
     await multiSelect(inp, ["ready", "enter_tree"]);
     await inp.confirm();
     await multiSelect(inp, [0, 1, 2]);
@@ -52,16 +57,16 @@ describe("addNewGodot class Command", () => {
     await wb.executeCommand("godot4-rust.newGodotClass");
     inp = await InputBox.create();
     await inp.selectQuickPick("Yes");
-    await inp.selectQuickPick("Scenes/Main/LevelButton/level_button.tscn");
+    await inp.selectQuickPick(LEVEL_SCENE_PATH);
     await multiSelect(inp, ["ready", "enter_tree"]);
     await inp.confirm();
     await multiSelect(inp, [0, 1, 2]);
     await inp.confirm(); // confirm multiselect
+    await driver.sleep(500);
     await inp.confirm(); // confirm file path
     driver.wait(async () => {
       (await wb.getEditorView().getOpenTabs()).length > 0;
     });
-
     let content = await new TextEditor().getText();
     assert.equal(
       content,

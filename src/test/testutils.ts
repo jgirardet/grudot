@@ -58,9 +58,13 @@ export const initTest = async (): Promise<
   await browser.waitForWorkbench(500);
   await bottomBar.toggle(true);
   let outputView = await bottomBar.openOutputView();
-  await browser.waitForWorkbench(5000);
+  await driver.wait(async () => {
+    outputView = await bottomBar.openOutputView();
+    if ((await outputView.getChannelNames()).includes("Godot4 Rust")) {
+      return true;
+    }
+  });
   await outputView.selectChannel("Godot4 Rust");
-  await browser.waitForWorkbench(500);
   return [rootPath, browser, driver, wb, bottomBar, outputView];
 };
 
@@ -90,6 +94,7 @@ const clearTmp = async () => {
   for (let d of await glob(`${os.tmpdir()}/grudot*`)) {
     fs.rmSync(d, { recursive: true, force: true });
   }
+  // fs.rmSync(".test-extensions", { recursive: true, force: true });
 };
 
 clearTmp();

@@ -158,8 +158,9 @@ const persist = async (
     path.basename(selectedTscn).replace(".tscn", ".rs")
   );
   let fileUri = await vscode.window.showSaveDialog({
-    defaultUri: vscode.Uri.parse(path.join(src, newFileName)),
+    defaultUri: vscode.Uri.file(path.resolve(path.join(src, newFileName))),
   });
+  logger.info(`Using new file uri: ${fileUri}`);
   if (fileUri === undefined) {
     return;
   }
