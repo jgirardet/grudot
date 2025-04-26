@@ -15,7 +15,7 @@ import { GODOT_CLASSES } from "../godotClasses";
 import {
   applyCodeActionNamed,
   getDotGodotPath,
-  getRustSrc,
+  getRustSrcDir,
   selectTscn,
 } from "../utils";
 import path from "path";
@@ -150,10 +150,7 @@ const persist = async (
   selectedTscn: string,
   content: string
 ): Promise<vscode.Uri | undefined> => {
-  let src = await getRustSrc();
-  if (src === undefined) {
-    return;
-  }
+  let src = await getRustSrcDir();
   let newFileName = toSnake(
     path.basename(selectedTscn).replace(".tscn", ".rs")
   );

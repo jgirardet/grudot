@@ -10,7 +10,8 @@ export {
   getProjectConfig,
   getConfigValue,
   selectTscn,
-  getRustSrc,
+  getRustSrcDir,
+  getRustDir,
   applyCodeActionNamed,
 };
 
@@ -57,21 +58,31 @@ const selectTscn = async (
   return selected;
 };
 
-/// Try to return rust/src/ folder and fallback workspace
-const getRustSrc = async (): Promise<string | undefined> => {
+const getRustDir = async (): Promise<string> => {
   let cargo = await vscode.workspace.findFiles("Cargo.toml");
   if (cargo.length === 1) {
-    let base = path.dirname(cargo[0].fsPath);
-    if (existsSync(path.join(base, "src/"))) {
-      let joined = path.resolve(path.join(base, "src/"));
-      logger.info(`Saving new module to : ${joined}`);
-      return joined;
+    return path.resolve(path.dirname(cargo[0].fsPath));
+  } else {
+    let folders = vscode.workspace.workspaceFolders;
+    if (folders !== undefined && folders.length > 0) {
+      return folders.at(0)!.uri.path;
     } else {
-      logger.info(`Saving new module to : ${path.resolve(base)}`);
-      return base;
+      throw new Error("Can't find any Cargo.toml ? Is the workspace opened ?");
     }
   }
-  return vscode.workspace.workspaceFolders?.at(0)?.uri.path;
+};
+
+/// Try to return rust/src/ folder and fallback workspace
+const getRustSrcDir = async (): Promise<string> => {
+  let rustDir = await getRustDir();
+  if (existsSync(path.join(rustDir, "src/"))) {
+    let joined = path.resolve(path.join(rustDir, "src/"));
+    logger.info(`Saving new module to : ${joined}`);
+    return joined;
+  } else {
+    logger.info(`Saving new module to : ${path.resolve(rustDir)}`);
+    return rustDir;
+  }
 };
 
 /// Apply the code titled at current cursor position
