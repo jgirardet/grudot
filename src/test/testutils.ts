@@ -73,9 +73,6 @@ export const multiSelect = async (
   }
   let boxes = await inp.getCheckboxes();
   for (let b of boxes) {
-    console.log(
-      `${await b.getLabel()}: ${b.getIndex()} => ${await b.isSelected()}`
-    );
     let checked = await b.isSelected();
     let toCheck: boolean;
     if (typeof idxOrNames[0] === "string") {
@@ -84,7 +81,6 @@ export const multiSelect = async (
       toCheck = (idxOrNames as number[]).includes(b.getIndex());
     }
     if (checked !== toCheck) {
-      console.log("click");
       await b.click();
     }
   }
