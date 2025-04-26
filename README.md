@@ -10,6 +10,15 @@ This extension aims to add some usefull shortcuts when using Rust with Godot
 
 https://github.com/user-attachments/assets/4a9904bf-6ff1-4570-8b82-b015ea439fd4
 
+#### Derive new rust module from existing Godot Scene
+
+- Select and existing Godot Scene from you project
+- You can choose to create a new rust module or use the active one (will add `mod mymodule` if needed)
+- Pick `Godot Methods` and `OnReady` you want to add
+- here you are !!!
+
+https://github.com/user-attachments/assets/4a9904bf-6ff1-4570-8b82-b015ea439fd4
+
 ## Extension Settings
 
 Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
@@ -22,21 +31,8 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-
 ## Release Notes
 
+### 0.1.0
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
+Initial release

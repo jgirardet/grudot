@@ -1,11 +1,11 @@
 // Import the module and reference it with the alias vscode in your code below
 import path from "path";
 import { Heading, RHeading, Tscn } from "./interfaces";
-import { NodeQuickItem } from "./quick_pick_items";
+import { NodeQuickItem } from "./quickPickItems";
 
 const convert = require("tscn2json");
 
-export { Node, NodesBuilder };
+export { Node, NodesBuilder, Nodes };
 
 class Node {
   name: string;
@@ -54,19 +54,28 @@ class NodesBuilder {
     this.godot_project = godot_project;
   }
 
-  parse = async (filepath: string) => {
-    const tscn = await this.parse_tscn(filepath);
-    this.parse_converted(tscn);
+  static build = async (
+    godotProjectPathFile: string,
+    selectedTscn: string
+  ): Promise<Nodes> => {
+    var builder = new NodesBuilder(godotProjectPathFile);
+    await builder.parse(selectedTscn);
+    return builder.buildNodes();
   };
 
-  parse_tscn = async (filepath: string): Promise<Tscn> => {
+  parse = async (filepath: string) => {
+    const tscn = await this.parseTscn(filepath);
+    this.parseConverted(tscn);
+  };
+
+  parseTscn = async (filepath: string): Promise<Tscn> => {
     let converted: Tscn = await convert({
       input: path.join(this.godot_project, filepath),
     });
     return converted;
   };
 
-  parse_converted = (tscn: Tscn) => {
+  parseConverted = (tscn: Tscn) => {
     for (let a of tscn.entities) {
       if (a.type === "node") {
         this.nodes.push(a.heading as Heading);
@@ -76,7 +85,7 @@ class NodesBuilder {
       }
     }
   };
-  get_node_tree = async (): Promise<Nodes> => {
+  buildNodes = async (): Promise<Nodes> => {
     const res_tree = [];
     for (const n of this.nodes) {
       if (n.type === undefined) {
@@ -99,10 +108,6 @@ class NodesBuilder {
       throw new Error(`${res_name} not found`);
     }
     var other_tscn = new NodesBuilder(this.godot_project);
-    // let other_path = path.join(
-    //   this.godot_project,
-    //   path_res.path.replace("res://", "")
-    // );
     let other_path = path_res.path.replace("res://", "");
     await other_tscn.parse(other_path);
     return other_tscn.nodes[0].type!;

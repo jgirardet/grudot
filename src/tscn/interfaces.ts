@@ -1,4 +1,4 @@
-export { Tscn, Nodei as Node, Heading, Instance, ExtResource, RHeading };
+export { Tscn, Nodei, Heading, Instance, ExtResource, RHeading };
 
 interface Tscn {
   entities: [Nodei];
