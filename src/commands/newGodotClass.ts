@@ -33,6 +33,7 @@ const newGodotClass = async () => {
   }
 
   const godotProjectPath = getDotGodotPath();
+  console.log(godotProjectPath);
   const selectedTscn = await selectTscn(godotProjectPath);
   if (selectedTscn === undefined) {
     return;
@@ -96,7 +97,7 @@ const pickMethods = async (
 ): Promise<NodeMethodQuickItem[] | undefined> => {
   let choices = await vscode.window.showQuickPick(mets, {
     canPickMany: true,
-    title: "Select Tscn to derive from",
+    title: "Select method to add to class",
   });
   return choices;
 };

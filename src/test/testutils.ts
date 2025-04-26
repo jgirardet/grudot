@@ -1,22 +1,19 @@
 import path from "path";
-import { GODOT_PROJECT_FILEPATH_KEY, GodotSettings, NAME } from "../constantes";
+import { GodotSettings } from "../constantes";
 import * as fs from "fs";
 import * as os from "os";
 import { glob } from "glob";
-import { fileURLToPath, pathToFileURL } from "url";
 import {
   BottomBarPanel,
+  InputBox,
   OutputView,
-  until,
   VSBrowser,
   WebDriver,
-  WebElementCondition,
   Workbench,
 } from "vscode-extension-tester";
 
 export const cloneDirToTemp = (dirpath: string): string => {
   let tmp = fs.mkdtempSync(path.join(os.tmpdir(), "grudot"));
-  console.log(`using tmp dur ${tmp}`);
   fs.cpSync(dirpath, tmp, { recursive: true });
   return tmp;
 };
@@ -29,7 +26,6 @@ export const addGodotProjectPathSetting = (projectPath: string) => {
   let setting = {
     "godot4-rust.godotProjectFilePath": godotProject,
   };
-  console.log(setting);
   fs.writeFileSync(
     path.resolve(projectPath, ".vscode/settings.json"),
     JSON.stringify(setting)
@@ -46,27 +42,6 @@ export const getSettings = (filepath: string): GodotSettings | undefined => {
     return settings;
   }
   return undefined;
-};
-
-export const showOutPanel = async (driver: WebDriver): Promise<OutputView> => {
-  // await wait(1000);
-  // driver.wait("a" === "a");
-
-  const bottomBar = new BottomBarPanel();
-  await bottomBar.toggle(true);
-  console.log("TOGGLE");
-  const outputView = await bottomBar.openOutputView();
-  console.log("TOGGLE");
-  // driver.wait)
-  while (true) {
-    const names = await outputView.getChannelNames();
-    if ("Godot4 Rust" in names) {
-      await outputView.selectChannel("Godot4 Rust");
-      return outputView;
-    } else {
-      await driver.sleep(100);
-    }
-  }
 };
 
 export const initTest = async (): Promise<
@@ -89,8 +64,31 @@ export const initTest = async (): Promise<
   return [rootPath, browser, driver, wb, bottomBar, outputView];
 };
 
-export const wait = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+export const multiSelect = async (
+  inp: InputBox,
+  idxOrNames: string[] | number[]
+) => {
+  if (idxOrNames.length === 0) {
+    throw new Error("Multiselect must not be empty");
+  }
+  let boxes = await inp.getCheckboxes();
+  for (let b of boxes) {
+    console.log(
+      `${await b.getLabel()}: ${b.getIndex()} => ${await b.isSelected()}`
+    );
+    let checked = await b.isSelected();
+    let toCheck: boolean;
+    if (typeof idxOrNames[0] === "string") {
+      toCheck = (idxOrNames as string[]).includes(await b.getLabel());
+    } else {
+      toCheck = (idxOrNames as number[]).includes(b.getIndex());
+    }
+    if (checked !== toCheck) {
+      console.log("click");
+      await b.click();
+    }
+  }
+};
 
 const clearTmp = async () => {
   for (let d of await glob(`${os.tmpdir()}/grudot*`)) {

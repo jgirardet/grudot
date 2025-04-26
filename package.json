@@ -51,9 +51,8 @@
     "watch": "tsc -watch -p ./",
     "lint": "eslint src",
     "clearTmp": "node ./out/test/testutils.js",
-    "ui-test": "tsc && extest run-tests './out/test/ui-test/*.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp",
-    "ui-setup": "extest setup-and-run './out/test/ui-test/*.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp",
-    "ui-test2": "tsc && extest run-tests './out/test/ui-test/*pet.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp"
+    "ui-test": "extest setup-and-run './out/test/ui-test/*.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp",
+    "ui-testone": "extest setup-and-run './out/test/ui-test/SomeFile.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp"
   },
   "devDependencies": {
     "@types/chai": "^5.2.1",

@@ -1,10 +1,6 @@
 import { assert } from "chai";
-import path from "path";
-import * as fs from "fs";
 import {
   BottomBarPanel,
-  Editor,
-  EditorView,
   InputBox,
   OutputView,
   TextEditor,
@@ -12,13 +8,7 @@ import {
   WebDriver,
   Workbench,
 } from "vscode-extension-tester";
-import {
-  addGodotProjectPathSetting,
-  cloneDirToTemp,
-  getSettings,
-  initTest,
-  showOutPanel,
-} from "../testutils.js";
+import { initTest } from "../testutils.js";
 
 describe("InsertSnippet Command", () => {
   let browser: VSBrowser;
@@ -30,30 +20,10 @@ describe("InsertSnippet Command", () => {
   let outputView: OutputView;
 
   beforeEach(async () => {
-    // bBottomBarPanel
+    [rootPath, browser, driver, wb, bottomBar, outputView] = await initTest();
   });
 
   it("tests one snippet is added to current file", async () => {
-    // let view = await showOutPanel(driver);
-    [rootPath, browser, driver, wb, bottomBar, outputView] = await initTest();
-    await wb.executeCommand("workbench.action.files.newUntitledFile");
-
-    // const bottomBar = new BottomBarPanel();
-    // await bottomBar.toggle(true);
-    // console.log("TOGGLE");
-    // const outputView = await bottomBar.openOutputView();
-    // console.log("TOGGLE");
-    // driver.wait)
-    // while (true) {
-    // const names = await outputView.getChannelNames();
-    // if ("Godot4 Rust" in names) {
-    // await outputView.selectChannel("Godot4 Rust");
-    // break;
-    // return outputView;
-    // } else {
-    // await driver.sleep(100);
-    // }
-    // }
     await wb.executeCommand("workbench.action.files.newUntitledFile");
 
     // first part test simple add
@@ -84,5 +54,7 @@ describe("InsertSnippet Command", () => {
     assert.equal(ligne2.trim(), '#[init(node = "MC/VB/Label")]');
     assert.equal(ligne3.trim(), "label: OnReady<Gd<Label>>,");
     assert.equal(ligne4.trim(), "label: OnReady<Gd<Label>>,");
+
+    await editor.clearText(); //avoid "save ?"
   });
 });

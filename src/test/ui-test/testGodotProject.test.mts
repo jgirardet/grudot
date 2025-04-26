@@ -2,26 +2,25 @@ import { assert } from "chai";
 import path from "path";
 import * as fs from "fs";
 import {
+  BottomBarPanel,
   InputBox,
+  OutputView,
   VSBrowser,
   WebDriver,
   Workbench,
 } from "vscode-extension-tester";
-import { cloneDirToTemp, getSettings } from "../testutils.js";
+import { getSettings, initTest } from "../testutils.js";
 
 describe("UI Godot4-rust test suite", () => {
   let browser: VSBrowser;
   let driver: WebDriver;
   let wb: Workbench;
   let rootPath: string;
+  let bottomBar: BottomBarPanel;
+  let outputView: OutputView;
 
   beforeEach(async () => {
-    rootPath = cloneDirToTemp("assets/noConfigProject");
-    browser = VSBrowser.instance;
-    browser.openResources(rootPath);
-    driver = browser.driver;
-    await browser.waitForWorkbench();
-    wb = new Workbench();
+    [rootPath, browser, driver, wb, bottomBar, outputView] = await initTest();
   });
 
   it("Test Godot set project command add configs to workspace", async () => {
