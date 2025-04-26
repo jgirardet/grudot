@@ -14,17 +14,15 @@ import { Node, Nodes, NodesBuilder } from "../tscn/NodesBuilder";
 import { GODOT_CLASSES } from "../godotClasses";
 import {
   applyCodeActionNamed,
-  getDotGodotPath,
-  getRustSrcDir,
+  getGodotProjectPath,
   selectTscn,
 } from "../utils";
 import path from "path";
 import { toSnake } from "ts-case-convert";
 import { writeFile, writeFileSync } from "fs";
+import { getRustSrcDir } from "../cargo.js";
 
-export { newGodotClass };
-
-const newGodotClass = async () => {
+export const newGodotClass = async () => {
   let persistFile = await vscode.window.showQuickPick(["Yes", "No"], {
     title: "Create new a new Rust module ?",
   });
@@ -32,8 +30,7 @@ const newGodotClass = async () => {
     return;
   }
 
-  const godotProjectPath = getDotGodotPath();
-  console.log(godotProjectPath);
+  const godotProjectPath = getGodotProjectPath();
   const selectedTscn = await selectTscn(godotProjectPath);
   if (selectedTscn === undefined) {
     return;
