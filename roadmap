@@ -1,0 +1,15 @@
+- set godot project
+- Comment appeler l'extension ?
+- Ou creer Rust project ?
+- Creer repertoir
+- Creer  cargo.toml
+    - crateNAme
+    - resutversion
+    - ajout dynlib
+    - ajout godot crate
+- creer lib.rs
+    - gdextension
+
+Step: File search  =>Set Godo project
+Step 2: Input Step => crateName
+Step 3: File search => select ParentFOlder
