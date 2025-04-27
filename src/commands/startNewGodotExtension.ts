@@ -1,18 +1,20 @@
 import path from "path";
 import { logger } from "../log";
-import { Uri, window } from "vscode";
+import { commands, Uri, window } from "vscode";
 import { selectGodotProject } from "./setGodotProject";
-import { FullPath, FullPathDir, FullPathFile, Name } from "../types";
+import { FullPathDir, FullPathFile, Name } from "../types";
 import { getParsedGodotProject } from "../godotProject";
-import { kebabCase } from "string-ts";
+import { kebabCase, pascalCase } from "string-ts";
 import { runCargoCommand } from "../cargo";
-import { match, P } from "ts-pattern";
-import { error } from "console";
-import { ok } from "assert";
-import { LAST_GODOT_CRATE_VERSION_AS_TOML } from "../constantes";
+import {
+  GODOT_PROJECT_FILEPATH_KEY,
+  LAST_GODOT_CRATE_VERSION_AS_TOML,
+  NAME,
+} from "../constantes";
+import { mkdirSync, writeFileSync } from "fs";
+import { processCreateGdextension } from "./createGdextension";
 
 export const startNewExtensionCommand = async () => {
-  await getGodotCrateVersionAdTomlLine();
   logger.info("Starting new extension");
 
   const godotFileProject = await selectGodotProjectStep();
@@ -20,11 +22,13 @@ export const startNewExtensionCommand = async () => {
     logger.warn("Aborting");
     return;
   }
+
   const crateName = await writeCrateNameStep(godotFileProject);
   if (crateName === undefined) {
     logger.warn("Aborting");
     return;
   }
+
   const rustParentDir = await selecRustParentDirStep(
     path.dirname(godotFileProject)
   );
@@ -34,7 +38,8 @@ export const startNewExtensionCommand = async () => {
   }
 
   const gd = new NewGDExtension(godotFileProject, rustParentDir, crateName);
-  await gd.run();
+  await gd.build();
+  commands.executeCommand("vscode.openFolder", Uri.file(gd.crateDir));
 };
 
 class NewGDExtension {
@@ -48,13 +53,19 @@ class NewGDExtension {
   _crateName: Name;
 
   // godot project directory
-  public get godotDir(): FullPathDir {
+  get godotDir(): FullPathDir {
     return path.dirname(this._godotProjectFile);
   }
 
   // godot.project path
-  public get godotProjectFile(): FullPathFile {
+  get godotProjectFile(): FullPathFile {
     return this._godotProjectFile;
+  }
+
+  // Crate'sDir path
+
+  get crateDir(): FullPathDir {
+    return path.join(this._rustDirBase, this._crateName);
   }
 
   constructor(
@@ -68,17 +79,42 @@ class NewGDExtension {
     window.showQuickPick;
   }
 
-  run = async () => {
-    // create rust dir
-    //
+  build = async () => {
+    // create rust dir structur
+    mkdirSync(path.join(this.crateDir, "src/"), { recursive: true });
+
+    // create Cargo.toml
+    writeFileSync(
+      path.join(this.crateDir, "Cargo.toml"),
+      buildCargoToml(this._crateName)
+    );
+
+    // create lib.rs
+    writeFileSync(
+      path.join(this.crateDir, "src", "lib.rs"),
+      buildLibRs(this._crateName)
+    );
+
+    // create vscode settings
+    mkdirSync(path.join(this.crateDir, ".vscode"));
+    writeFileSync(
+      path.join(this.crateDir, ".vscode", "settings.json"),
+      JSON.stringify({
+        [`${NAME}.${GODOT_PROJECT_FILEPATH_KEY}`]: this._godotProjectFile,
+      })
+    );
+
+    // create gdextension
+    await processCreateGdextension(
+      this._crateName,
+      this.crateDir,
+      this._godotProjectFile
+    );
   };
 }
 
 const validateCrateName = (name: string): boolean => {
-  if (/[^a-z|-|_|0-9]/.test(name)) {
-    return false;
-  }
-  if (name.includes("-") && name.includes("_")) {
+  if (/[^a-z|\-|_|0-9]/.test(name)) {
     return false;
   }
   return true;
@@ -93,7 +129,7 @@ const selectGodotProjectStep = async (): Promise<FullPathFile | undefined> => {
 const writeCrateNameStep = async (
   godotProject: FullPathFile
 ): Promise<Name | undefined> => {
-  let value: string = kebabCase(getParsedGodotProject().name);
+  let value: string = kebabCase(getParsedGodotProject(godotProject).name);
   while (true) {
     let name = await window.showInputBox({
       placeHolder: "crate name",
@@ -108,6 +144,7 @@ const writeCrateNameStep = async (
       logger.info(`New crate name selected: ${name}`);
       return name;
     } else {
+      console.log("Fail validating");
       value = name;
     }
   }
@@ -130,7 +167,9 @@ const selecRustParentDirStep = async (
   }
 };
 
-const buildCargoToml = (crateName: Name): string => `[package]
+const buildCargoToml = (crateName: Name): string => {
+  const godotCrate = getGodotCrateVersionAsTomlLine();
+  return `[package]
 name = "${crateName}"
 version = "0.1.0"
 edition = "2024"
@@ -139,22 +178,30 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-godot = "0.2.4"`;
+${godotCrate}`;
+};
 
-const getGodotCrateVersionAdTomlLine = async (): Promise<string> =>
-  match(await runCargoCommand("search godot -dazdq --limit 1"))
-    .with({ ok: P._ }, (out) => {
-      console.log(out);
-      let res =
-        out.ok.split("\n")[0].match(/godot\s=\s\"\d\.\d\.\d\"/)?.[0] ??
-        LAST_GODOT_CRATE_VERSION_AS_TOML;
-      logger.info(`Using godot crate : ${res}`);
-      return res;
-    })
-    .with({ error: P._ }, (err) => {
-      //   logger.warn(
-      //     `Cargo command returned ${err.error}. Falling back to ${LAST_GODOT_CRATE_VERSION_AS_TOML} in Cargo.toml`
-      //   );
-      return LAST_GODOT_CRATE_VERSION_AS_TOML;
-    })
-    .exhaustive();
+const buildLibRs = (crateName: Name): string => {
+  let extensionName = `${pascalCase(crateName)}Extension`;
+  return `use godot::prelude::*;
+
+struct ${extensionName};
+
+#[gdextension]
+unsafe impl ExtensionLibrary for ${extensionName} {}`;
+};
+
+const getGodotCrateVersionAsTomlLine = (): string => {
+  let _version: string | undefined;
+  let commandRes = runCargoCommand("search godot -q --limit 1");
+  if ("ok" in commandRes) {
+    _version = commandRes.ok
+      .split("\n")[0]
+      .match(/godot\s=\s\"\d\.\d\.\d\"/)?.[0];
+  } else {
+    logger.warn(`Cargo command returned ${commandRes.error}`);
+  }
+  const result = _version || LAST_GODOT_CRATE_VERSION_AS_TOML;
+  logger.info(`Using godot crate: ${result}`);
+  return result;
+};

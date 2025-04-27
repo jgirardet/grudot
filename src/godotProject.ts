@@ -18,14 +18,18 @@ export const getGodotProjectFile = (): FullPathFile => {
   return godotfp;
 };
 
-export const getGodotProjectDir = (): FullPathDir => {
-  const gdp = path.dirname(getGodotProjectFile());
+export const getGodotProjectDir = (projectFile?: FullPathFile): FullPathDir => {
+  const gdp = path.dirname(projectFile ?? getGodotProjectFile());
   logger.info(`Godot Project pathdir: ${gdp}`);
   return gdp;
 };
 
-export const getParsedGodotProject = (): GodotProject => {
-  let text = readFileSync(getGodotProjectFile(), { encoding: "utf-8" });
+export const getParsedGodotProject = (
+  projectFile?: FullPathFile
+): GodotProject => {
+  let text = readFileSync(projectFile || getGodotProjectFile(), {
+    encoding: "utf-8",
+  });
   const content = ini.parse(text) as IGodotProject;
   return new GodotProject(content);
 };
