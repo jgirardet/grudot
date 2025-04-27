@@ -70,10 +70,21 @@ interface CargoSucces {
 export const runCargoCommand = async (
   command: string
 ): Promise<CargoComandResult> => {
-  const { stdout, stderr } = await exec(`cargo ${command}`);
-  if (stderr.length > 0) {
-    return { error: stderr };
-  } else {
-    return { ok: stdout };
+  let out: string;
+  let err: string;
+
+  try {
+    const { stdout, stderr } = await exec(`cargo ${command}`);
+    out = stdout;
+    err = stderr;
+  } catch (e) {
+    console.log(e);
+    return {error:e}
+  } finally {
+    if (err.length > 0) {
+      return { error: stderr };
+    } else {
+      return { ok: stdout };
+    }
   }
 };

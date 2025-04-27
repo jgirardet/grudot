@@ -8,26 +8,13 @@ import { kebabCase } from "string-ts";
 import { runCargoCommand } from "../cargo";
 import { match, P } from "ts-pattern";
 import { error } from "console";
+import { ok } from "assert";
+import { LAST_GODOT_CRATE_VERSION_AS_TOML } from "../constantes";
 
 export const startNewExtensionCommand = async () => {
+  await getGodotCrateVersionAdTomlLine();
   logger.info("Starting new extension");
 
-  let a = match(await runCargoCommand("search godot -q --limit 1"))
-    .with({ ok: P._ }, (out) => {
-      let res =
-        out.ok.split("\n")[0].match(/godot\s=\s\"\d\.\d\.\d\"/)?.[0] ??
-        'godot = "0.2.4"';
-      logger.info(`Using godot crate : ${res}`);
-      return res;
-    })
-    .with({ error: P._ }, (err) => {
-      logger.warn(
-        `Cargo command returned ${err.error}. Falling back to "cargo = 0.2.4" in Cargo.toml`
-      );
-      return "godot = 0.2.4";
-    });
-
-  return;
   const godotFileProject = await selectGodotProjectStep();
   if (godotFileProject === undefined) {
     logger.warn("Aborting");
@@ -153,3 +140,21 @@ crate-type = ["cdylib"]
 
 [dependencies]
 godot = "0.2.4"`;
+
+const getGodotCrateVersionAdTomlLine = async (): Promise<string> =>
+  match(await runCargoCommand("search godot -dazdq --limit 1"))
+    .with({ ok: P._ }, (out) => {
+      console.log(out);
+      let res =
+        out.ok.split("\n")[0].match(/godot\s=\s\"\d\.\d\.\d\"/)?.[0] ??
+        LAST_GODOT_CRATE_VERSION_AS_TOML;
+      logger.info(`Using godot crate : ${res}`);
+      return res;
+    })
+    .with({ error: P._ }, (err) => {
+      //   logger.warn(
+      //     `Cargo command returned ${err.error}. Falling back to ${LAST_GODOT_CRATE_VERSION_AS_TOML} in Cargo.toml`
+      //   );
+      return LAST_GODOT_CRATE_VERSION_AS_TOML;
+    })
+    .exhaustive();
