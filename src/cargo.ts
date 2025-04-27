@@ -3,6 +3,10 @@ import path from "path";
 import * as vscode from "vscode";
 import { logger } from "./log";
 const toml = require("smol-toml");
+// import * as cp from "child_process";
+import util from "node:util";
+import cp from "node:child_process";
+const exec = util.promisify(cp.exec);
 
 // find Cargo.toml file => undefined if != 1
 export const getCargoToml = async (): Promise<string | undefined> => {
@@ -51,4 +55,25 @@ export const getCrateName = (cargoPath: string): string => {
     );
   }
   return res;
+};
+
+type CargoComandResult = CargoError | CargoSucces;
+
+interface CargoError {
+  error: string;
+}
+
+interface CargoSucces {
+  ok: string;
+}
+
+export const runCargoCommand = async (
+  command: string
+): Promise<CargoComandResult> => {
+  const { stdout, stderr } = await exec(`cargo ${command}`);
+  if (stderr.length > 0) {
+    return { error: stderr };
+  } else {
+    return { ok: stdout };
+  }
 };

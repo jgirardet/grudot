@@ -1,5 +1,5 @@
 import { GODOT_PROJECT_FILEPATH_KEY } from "../constantes";
-import { getConfigValue, getGodotProjectPath } from "../utils";
+import { getConfigValue } from "../utils";
 import path from "path";
 import { logger } from "../log";
 import { readFile } from "fs/promises";
@@ -7,6 +7,7 @@ import * as ini from "ini";
 import { getRustDir, getCrateName, getCargoToml } from "../cargo.js";
 import { window } from "vscode";
 import { writeFileSync, existsSync } from "fs";
+import { getGodotProjectDir, getParsedGodotProject } from "../godotProject";
 
 export const createGdextensionCommand = async () => {
   logger.info("Starting command: create gdextension file");
@@ -18,7 +19,7 @@ export const createGdextensionCommand = async () => {
     return;
   }
   const rustDir = await getRustDir(cargoToml);
-  const godotDir = getGodotProjectPath();
+  const godotDir = getGodotProjectDir();
   logger.info(`Using ${godotDir}`);
 
   // deal with the names
@@ -49,21 +50,20 @@ export const createGdextensionCommand = async () => {
 };
 
 const gdText = async (rustDir: string, crateName: string, version?: string) => {
-  const godotDir = getGodotProjectPath();
-  const godotFile = getConfigValue(GODOT_PROJECT_FILEPATH_KEY);
-  let _version;
-  if (version === undefined) {
-    let text = await readFile(godotFile, {
-      encoding: "utf-8",
-    });
-    let project = ini.parse(text);
-    _version =
-      (project["application"]["config/features"] as string)
-        .match(/.*(\d\.\d).*/)
-        ?.at(1) ?? "4.2";
-  } else {
-    _version = version;
-  }
+  const godotDir = getGodotProjectDir();
+  // const godotFile = getConfigValue(GODOT_PROJECT_FILEPATH_KEY);
+  let _version = version || getParsedGodotProject().version;
+  // let text = await readFile(godotFile, {
+  //   encoding: "utf-8",
+  // });
+  // let project = ini.parse(text);
+  // _version =
+  //   (project["application"]["config/features"] as string)
+  //     .match(/.*(\d\.\d).*/)
+  //     ?.at(1) ?? "4.2";
+  // } else {
+  //   _version = version;
+  // }
   logger.info(`Creating gdextension file with compatibility ${_version}`);
   const relativeRustDir = path.relative(godotDir, rustDir);
   crateName = crateName.replaceAll("-", "_"); // changed by rust when buildind
