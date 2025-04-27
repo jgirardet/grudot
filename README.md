@@ -4,6 +4,8 @@ This extension aims to add some usefull shortcuts when using Rust with Godot
 
 ## Features
 
+[**Automagicaly `setup a whole new Rust project` linked to your Godot project**](#automagicaly-setup-a-whole-new-rust-project-linked-to-your-godot-project)
+
 [**Add `OnReady` as simple as in Godot**](#add-onready-as-simple-as-in-godot)
 
 [**`Derive` new rust module from existing `Godot Scene`**](#derive-new-rust-module-from-existing-godot-scene)
@@ -17,6 +19,16 @@ This extension aims to add some usefull shortcuts when using Rust with Godot
 #### First you need to configure the linked Godot Project
 
 Use dedicated command to set it (Ctrl+Maj+P => Godot4-Rust: set Godot Project)
+
+### Automagicaly `setup a whole new Rust project`- linked to your Godot project
+
+Use dedicated command (Ctrl+Maj+P => Godot4-Rust: start a new GDExtension Project). Just select project.godot file, choose a crate name and directory and you get:
+
+- New Rust crate
+- latest godot dependacy in Carg.toml (with cdylib)
+- Extension declared in lib.rs
+- the .gdextension file added inside your godot project
+- .vscode/settings.json configured to use this extension
 
 #### Add `OnReady` as simple as in Godot
 

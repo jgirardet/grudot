@@ -36,6 +36,10 @@
       {
         "command": "godot4-rust.createGdextension",
         "title": "Godot4-Rust: Create a the .gdextension file in your project"
+      },
+      {
+        "command": "godot4-rust.startNewGDExtensionProject",
+        "title": "Godot4-Rust: Start a new GDExtension project"
       }
     ],
     "configuration": {
