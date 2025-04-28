@@ -1,4 +1,4 @@
 todo:
 
 - changer le nom du tscn
-- init git
+

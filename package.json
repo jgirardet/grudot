@@ -65,6 +65,7 @@
   },
   "devDependencies": {
     "@types/chai": "^5.2.1",
+    "@types/find-parent-dir": "^0.3.3",
     "@types/ini": "^4.1.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.15.0",
@@ -81,6 +82,7 @@
     "vscode-extension-tester": "^8.14.1"
   },
   "dependencies": {
+    "find-parent-dir": "^0.3.1",
     "fs": "^0.0.2",
     "glob": "^11.0.1",
     "ini": "^5.0.0",

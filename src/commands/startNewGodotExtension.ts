@@ -13,6 +13,7 @@ import {
 } from "../constantes";
 import { mkdirSync, writeFileSync } from "fs";
 import { processCreateGdextension } from "./createGdextension";
+import findParentDir from "find-parent-dir";
 
 export const startNewExtensionCommand = async () => {
   logger.info("Starting new extension");
@@ -96,7 +97,7 @@ class NewGDExtension {
     );
 
     // create vscode settings
-    mkdirSync(path.join(this.crateDir, ".vscode"));
+    mkdirSync(path.join(this.crateDir, ".vscode"), { recursive: true });
     writeFileSync(
       path.join(this.crateDir, ".vscode", "settings.json"),
       JSON.stringify({
@@ -110,6 +111,9 @@ class NewGDExtension {
       this.crateDir,
       this._godotProjectFile
     );
+
+    // setup git
+    setupGit(this.crateDir);
   };
 }
 
@@ -204,4 +208,32 @@ const getGodotCrateVersionAsTomlLine = (): string => {
   const result = _version || LAST_GODOT_CRATE_VERSION_AS_TOML;
   logger.info(`Using godot crate: ${result}`);
   return result;
+};
+
+// init git if none found in parent directory
+const setupGit = (crateDir: FullPathDir) => {
+  logger.info("Setting up git");
+  let resdir: string | null = null;
+  try {
+    resdir = findParentDir.sync(crateDir, ".git/");
+  } catch (err: any) {
+    if (err.cod) {
+      logger.error("An error occured setting up git, aborting setup git");
+    }
+  }
+
+  console.log(`resdore: ${resdir}`);
+  if (resdir) {
+    logger.info(`.git found at ${resdir}, skipping`);
+  } else {
+    const gitignore = path.join(crateDir, ".gitignore");
+    writeFileSync(
+      path.join(gitignore),
+      `debug/
+target/
+**/*.rs.bk
+*.pdb`
+    );
+    logger.info(`Added .gitignore to ${crateDir}`);
+  }
 };

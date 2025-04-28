@@ -29,12 +29,9 @@ Use dedicated command (Ctrl+Maj+P => Godot4-Rust: start a new GDExtension Projec
 - Extension declared in lib.rs
 - the .gdextension file added inside your godot project
 - .vscode/settings.json configured to use this extension
-
-
+- add .gitignore if none is found in parents directory
 
 https://github.com/user-attachments/assets/c8243982-5a21-4fba-b214-54a651beb64b
-
-
 
 #### Add `OnReady` as simple as in Godot
 
