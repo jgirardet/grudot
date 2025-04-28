@@ -14,6 +14,7 @@ import {
 import { mkdirSync, writeFileSync } from "fs";
 import { processCreateGdextension } from "./createGdextension";
 import findParentDir from "find-parent-dir";
+import { execSync } from "child_process";
 
 export const startNewExtensionCommand = async () => {
   logger.info("Starting new extension");
@@ -235,5 +236,12 @@ target/
 *.pdb`
     );
     logger.info(`Added .gitignore to ${crateDir}`);
+    logger.info("trying to init git repo");
+    try {
+      const res = execSync("git init", { encoding: "utf-8", timeout: 2000, cwd: crateDir });
+      logger.info(res);
+    } catch (e: any) {
+      logger.error(`git init failed with message:  ${e.message}`);
+    }
   }
 };
