@@ -1,5 +1,4 @@
 todo:
 
-- enlever le noeds racine des onready possible
 - changer le nom du tscn
 - init git
