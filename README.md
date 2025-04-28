@@ -30,6 +30,12 @@ Use dedicated command (Ctrl+Maj+P => Godot4-Rust: start a new GDExtension Projec
 - the .gdextension file added inside your godot project
 - .vscode/settings.json configured to use this extension
 
+
+
+https://github.com/user-attachments/assets/c8243982-5a21-4fba-b214-54a651beb64b
+
+
+
 #### Add `OnReady` as simple as in Godot
 
 - Adds fields automagically with correct Type and name. Struct must be [`init`](https://godot-rust.github.io/docs/gdext/master/godot/register/derive.GodotClass.html#construction)
