@@ -55,6 +55,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
+    "test": "vscode-test",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src",
