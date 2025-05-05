@@ -27,9 +27,10 @@ struct GodotStruct2;
 struct GodotStruct3;
 `);
 
-      let res = rp.findGodotClassName();
-      console.log(res);
-      assert.deepEqual(res, ["GodotStruct", "GodotStruct2", "GodotStruct3"]);
+      let res = rp.findGodotClass();
+      assert.deepEqual(res, {
+        className: "GodotStruct",
+      });
     });
   });
 });
