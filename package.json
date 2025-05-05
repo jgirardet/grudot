@@ -78,6 +78,7 @@
     "ui-testone": "extest setup-and-run './out/test/ui-test/*NewProject.test.mjs' --code_version max --code_settings src/test/ui-test/settings.json --extensions_dir .test-extensions && npm run clearTmp"
   },
   "devDependencies": {
+    "@types/benchmark": "^2.1.5",
     "@types/chai": "^5.2.1",
     "@types/find-parent-dir": "^0.3.3",
     "@types/ini": "^4.1.1",
@@ -89,6 +90,7 @@
     "@typescript-eslint/parser": "^8.28.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.5.2",
+    "benchmark": "^2.1.4",
     "chai": "^5.2.0",
     "eslint": "^9.23.0",
     "mocha": "^11.2.2",
