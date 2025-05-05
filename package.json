@@ -20,6 +20,14 @@
   ],
   "main": "out/extension.js",
   "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "godot4-rust",
+          "name": "Godot4 Rust"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "godot4-rust.insertOnReady",
@@ -40,6 +48,10 @@
       {
         "command": "godot4-rust.startNewGDExtensionProject",
         "title": "Godot4-Rust: Start a new GDExtension project"
+      },
+      {
+        "command": "godot4-rust.scenePreview",
+        "title": "Godot4-Rust: Preview Scene in Godot4-Rust Panel"
       }
     ],
     "configuration": {
@@ -55,8 +67,9 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "test": "vscode-test",
     "compile": "tsc -p ./",
+    "vscode-test": "out/test/vscode/runTests.js",
+    "unit-test": "mocha out/test/unit",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src",
     "clearTmp": "node ./out/test/testutils.js",
@@ -79,6 +92,7 @@
     "chai": "^5.2.0",
     "eslint": "^9.23.0",
     "mocha": "^11.2.2",
+    "object-sizeof": "^2.6.5",
     "typescript": "^5.8.2",
     "vscode-extension-tester": "^8.14.1"
   },
@@ -89,8 +103,11 @@
     "ini": "^5.0.0",
     "smol-toml": "^1.3.4",
     "string-ts": "^2.2.1",
+    "tree-sitter": "^0.22.4",
+    "tree-sitter-rust": "^0.24.0",
     "ts-case-convert": "^2.1.0",
     "tscn2json": "^1.0.0",
+    "vscode-languageclient": "^9.0.1",
     "winston": "^3.17.0",
     "winston-transport-vscode": "^0.1.0"
   }

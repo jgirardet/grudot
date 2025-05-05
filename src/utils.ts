@@ -5,7 +5,13 @@ import { glob } from "glob";
 import { logger } from "./log";
 import { FullPathDir } from "./types";
 
-export { getProjectConfig, getConfigValue, selectTscn, applyCodeActionNamed };
+export {
+  getProjectConfig,
+  getConfigValue,
+  selectTscn,
+  applyCodeActionNamed,
+  any_undefined,
+};
 
 const getProjectConfig = (): vscode.WorkspaceConfiguration => {
   return vscode.workspace.getConfiguration(NAME);
@@ -62,4 +68,14 @@ const applyCodeActionNamed = async (
       await vscode.workspace.applyEdit(action.edit);
     }
   }
+};
+
+const any_undefined = (...vars: any[]): boolean => {
+  // return vars.every((p) => p !== undefined) ? false : true;
+  for (const v of vars) {
+    if (v === undefined) {
+      return true;
+    }
+  }
+  return false;
 };

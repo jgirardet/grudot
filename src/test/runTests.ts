@@ -10,10 +10,12 @@ async function main() {
 
     // The path to the extension test runner script
     // Passed to --extensionTestsPath
-    const extensionTestsPath = path.resolve(__dirname, "./unit/suite/index");
+    const extensionTestsPath = path.resolve(__dirname, "./vscode/suite/index");
 
     // Download VS Code, unzip it and run the integration test
-    await runTests({ extensionDevelopmentPath, extensionTestsPath });
+    await runTests({ extensionDevelopmentPath, extensionTestsPath,
+    
+    });
   } catch (err) {
     console.error(err);
     console.error("Failed to run tests");
