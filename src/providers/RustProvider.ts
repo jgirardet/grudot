@@ -1,6 +1,7 @@
 import Parser, { Tree, Query, SyntaxNode, QueryCapture } from "tree-sitter";
 import { Name } from "../types";
 import Rust from "tree-sitter-rust";
+import { godotModuleQuery } from "./loadQueries";
 
 export class RustProvider {
   source: string;
@@ -17,68 +18,22 @@ export class RustProvider {
     return this._tree.rootNode;
   }
 
-  /// Find the First GodotClass
-  findGodotClass(): QueryCapture[] {
-    let q = new Query(
-      Rust as Parser.Language,
-      `
-(
-  (attribute_item
-    (attribute 
-      (identifier) @derive  (#eq? @derive "derive")
-      arguments: (token_tree
-        (identifier) @godotclass
-        (#eq? @godotclass "GodotClass")
-      )
-    )
-  )
-  .
-  [
-    (attribute_item)
-    (line_comment)
-  ]*
-  .
-    (attribute_item
-        (attribute 
-            (identifier) @class (#eq? @class "class")
-            arguments: (token_tree
-                (
-                    (identifier)  @baseKw (#eq? @baseKw  "base")
-                    .
-                    "="
-                    .
-                    (identifier) @baseClass
-                )?
-               ( 
-                (identifier) @init (#eq? @init "init")
-                )?
-            )
-        )
-    )
-  .
-  [
-      (attribute_item)
-      (line_comment)
-  ]*
-  .
-  (struct_item 
-    name: (type_identifier) @name
-  )
-)
-`
-    );
+  /// Find the First GodotClass in module
+  findGodotClass(): ParsedGodotModule | undefined {
+    let q = new Query(Rust as Parser.Language, godotModuleQuery);
 
-    let res = q.matches(this.rootNode).at(0);
-    return res!.captures;
+    let captures = q.matches(this.rootNode).at(0)?.captures;
+    if (!captures || captures.length === 0) {
+      return;
+    }
 
-    // ;
-    console.log("RES");
-    console.log(res);
-    // if (res?.captures === undefined || res.captures.length === 0) {
-    //   return;
-    // }
-    // let pgm = pickValues(this._tree, res.captures);
-    // return pgm;
+    let res: ParsedGodotModule = {};
+    for (const c of captures) {
+      if (c.name in ["className, baseClass, init"]) {
+        res[c.name as keyof ParsedGodotModule] = this._tree.getText(c.node);
+      }
+    }
+    return res;
   }
 
   isGodotModule(): boolean {
@@ -86,36 +41,6 @@ export class RustProvider {
   }
 }
 
-export const pickValuesLoop = (tree: Tree, captures: QueryCapture[]) => {
-  let res: ParsedGodotModule = {};
-
-  // const name = captures.at(captures.findIndex((p) => p.name === "className"));
-  // if (!name) {
-  //   return;
-  // }
-  for (const c of captures) {
-    res[c.name as keyof ParsedGodotModule] = tree.getText(c.node);
-  }
-  return res;
-};
-
-export const pickValuesLoopShrinked = (
-  tree: Tree,
-  captures: QueryCapture[]
-) => {
-  let res: ParsedGodotModule = {};
-
-  // const name = captures.at(captures.findIndex((p) => p.name === "className"));
-  // if (!name) {
-  //   return;
-  // }
-  for (const c of captures) {
-    if (c.name in ["className, baseClass, init"]) {
-      res[c.name as keyof ParsedGodotModule] = tree.getText(c.node);
-    }
-  }
-  return res;
-};
 export interface ParsedGodotModule {
   className?: string;
   init?: string;

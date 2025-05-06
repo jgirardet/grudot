@@ -1,10 +1,5 @@
-import {
-  pickValuesLoop,
-  pickValuesLoopShrinked,
-  RustProvider,
-} from "../../providers/RustProvider";
+import { RustProvider } from "../../providers/RustProvider";
 import { assert } from "chai";
-import Benchmark from "benchmark";
 
 // describe("treesitter", function () {
 //   describe("preliminaire", function () {
@@ -33,32 +28,35 @@ struct GodotStruct3;
 `);
 
 let res = rp.findGodotClass();
-//       assert.deepEqual(res, {
-//         className: "GodotStruct",
-//       });
+assert.deepEqual(res, {
+  className: "GodotStruct",
+  init: "init",
+  baseClass: "CharactedBody2D",
+});
 //     });
 //   });
 // });
-var suite = new Benchmark.Suite();
+// console.log(pickValuesLoopShrinked(rp._tree, res));
+// var suite = new Benchmark.Suite();
 
 // add tests
-suite
-  .add("stadard", function () {
-    pickValuesLoop(rp._tree, res);
-  })
-  .add("Shrinked", function () {
-    pickValuesLoopShrinked(rp._tree, res);
-  })
-  // add listeners
-  .on("cycle", function (event: Benchmark.Event) {
-    console.log(String(event.target));
-    // console.log(String(event.));
-  })
-  .on("complete", function () {
-    console.log("Fastest is " + suite.filter("fastest").map("name"));
-    for (const [k, v] of Object.entries(suite)) {
-      console.log(v.stats.mean);
-    }
-  })
-  // run async
-  .run({ async: true });
+// suite
+//   .add("stadard", function () {
+//     pickValuesLoop(rp._tree, res);
+//   })
+//   .add("Shrinked", function () {
+//     pickValuesLoopShrinked(rp._tree, res);
+//   })
+//   // add listeners
+//   .on("cycle", function (event: Benchmark.Event) {
+//     console.log(String(event.target));
+//     // console.log(String(event.));
+//   })
+//   .on("complete", function () {
+//     console.log("Fastest is " + suite.filter("fastest").map("name"));
+//     // for (const [k, v] of Object.entries(suite)) {
+//     // console.log(v.stats.mean);
+//     // }
+//   })
+//   // run async
+//   .run({ async: true });
