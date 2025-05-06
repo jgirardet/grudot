@@ -18,10 +18,11 @@
 			"preLaunchTask": "${defaultBuildTask}"
 		},
 		{
-			"name": "Extension Tests",
+			"name": "Unit Extension Tests",
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
+			"outputCapture": "console",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
 				"--extensionTestsPath=${workspaceFolder}/out/test/unit/suite/index"
@@ -29,6 +30,6 @@
 			"outFiles": [
 				"${workspaceFolder}/out/test/unit/**/*.js"
 			]
-		}
+		},
 	]
 }

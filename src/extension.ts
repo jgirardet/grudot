@@ -6,8 +6,18 @@ import { log_error, logger } from "./log";
 import { newGodotClass } from "./commands/newGodotClass";
 import { createGdextensionCommand } from "./commands/createGdextension";
 import { startNewExtensionCommand } from "./commands/startNewGodotExtension";
+import { ScenePreviewProvider } from "./godotVscode/scene_tools";
 
 export function activate(context: vscode.ExtensionContext) {
+  const rootPath =
+    vscode.workspace.workspaceFolders &&
+    vscode.workspace.workspaceFolders.length > 0
+      ? vscode.workspace.workspaceFolders[0].uri.fsPath
+      : undefined;
+  let treeData = vscode.window.registerTreeDataProvider(
+    NAME,
+    new ScenePreviewProvider(context)
+  );
   logger.info("Extension activating");
   const commandSetProject = vscode.commands.registerCommand(
     NAME + "." + "setGodotProject",
@@ -39,6 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(command_newGodotClass);
   context.subscriptions.push(commandCreateGdextension);
   context.subscriptions.push(commandstartNewGDExtension);
+  context.subscriptions.push(treeData);
 }
 
 export function deactivate() {

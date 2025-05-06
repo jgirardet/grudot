@@ -1,4 +1,8 @@
 todo:
 
 - changer le nom du tscn
+_ option pub crate or pub scene
+_ godot on cargo to activate
+- echec avec scalzard
+-parser node avec - _ et /
 
